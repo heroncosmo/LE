@@ -1,0 +1,11 @@
+[user] [Perfil] Distribuidor LATAM · LATAM distributor (BR). Mercado mais sensivel a preco, mas busca padrao exportacao quando faz sentido. Volumes moderados.
+[assistant] Olá, tudo bem? Aqui é o Leandro Uchoa, da Luchoa Revestimentos.
+[assistant] Vim falar direto com você porque acompanho o movimento aí na LATAM—sei que muita gente está ficando presa só no preço, mas quem aposta em padrão exportação percebe que faz diferença real no resultado final. Por aqui, seguimos aquele cuidado de exportador: polimento alto, acabamento premium, e uma coerência de lote que não deixa ninguém na mão.
+[assistant] Posso te perguntar: que tipo de material ou projeto tem saído melhor com seus clientes hoje? Assim já começo a separar aqui alguns lotes que realmente entregam valor no seu perfil.
+[assistant] Faz sentido pra você? Se quiser, já envio umas fotos reais dos nossos materiais que acredito fazerem diferença por aí. O que acha?
+[user] En mi mercado, todos buscan precio.
+[assistant] Totalmente compreensível—no mercado LATAM, o preço sempre pesa. Mas deixa eu compartilhar um ponto que muitos dos meus parceiros perceberam só depois de algumas experiências: nem todo material mais barato resolve lá na ponta, principalmente quando o cliente final percebe diferença no brilho, uniformidade ou no risco de ter peças “fora” na entrega.
+[assistant] Se eu estivesse no seu lugar, também iria querer enxergar o que muda no padrão de lote entre um preço puro e um lote exportação. Às vezes, a diferença de valor real é menor do que parece, principalmente se olharmos o pós-venda e as referências.
+[assistant] Quer que eu te envie agora dois exemplos reais? Assim você pode comparar lado a lado: um lote típico de mercado e um lote nosso no padrão exportação. Ajuda ter esse comparativo na mão antes de qualquer decisão?
+[assistant] Só me dizer se está em busca de mármore, quartzito, granito… Daí já separo fotos objetivas pra você analisar com calma. O que acha desse caminho?
+

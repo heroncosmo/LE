@@ -1,0 +1,221 @@
+{
+  "round": 3,
+  "items": [
+    {
+      "scenario": "Prospect BR – arquiteto (primeiro contato)",
+      "user": "Sou arquiteta no Brasil. Primeiro contato com você.",
+      "assistant": "Prazer, sou Leandro Uchoa, da Luchoa Revestimentos. Que bom ter esse contato direto — fico sempre feliz em poder colaborar com arquitetos(as) que valorizam um material diferenciado.\n\nSe quiser me contar um pouco sobre seu perfil de projetos, regiões onde atua e quais tipos de pedras ou acabamentos mais costuma recomendar, já começo a pensar em lotes que realmente façam sentido pro seu público.\n\nMe diz: hoje o que mais tem chamado atenção dos seus clientes? Alguma especificação (cor, textura, tipo de ambiente) que está em alta nos seus projetos?\n\nPosso te enviar fotos reais de alguns lotes que se destacam pelo padrão de acabamento exportação, pra você visualizar como entregamos? Fica à vontade pra me direcionar — meu papel aqui é facilitar o seu trabalho e dar confiança no que vai chegar pro seu cliente.",
+      "ok": true,
+      "reason": "",
+      "metrics": {
+        "length": 814,
+        "lines": 7,
+        "has_signature": false
+      }
+    },
+    {
+      "scenario": "Prospect BR – marmorista (primeiro contato)",
+      "user": "Sou marmorista no Brasil. Primeiro contato contigo.",
+      "assistant": "Prazer, sou Leandro Uchoa, da Luchoa Revestimentos. Obrigado por chegar até aqui!\n\nAntes de te propor qualquer material, queria entender um pouco mais do seu momento:  \nHoje, quais tipos de materiais têm tido mais saída aí na sua região? E normalmente, sua demanda é mais para obras residenciais, comerciais ou faz bastante variação?\n\nSe preferir, pode me contar rapidinho sua necessidade principal do momento — assim já separo opções com o padrão de lote que realmente faz diferença pra quem trabalha com acabamento premium.\n\nFico à disposição. Pode me contar um pouco do que está buscando?",
+      "ok": true,
+      "reason": "",
+      "metrics": {
+        "length": 591,
+        "lines": 8,
+        "has_signature": false
+      }
+    },
+    {
+      "scenario": "Prospect US – distributor (primeiro contato)",
+      "user": "I'm a US distributor. First contact with you.",
+      "assistant": "Oi! Muito prazer, sou Leandro Uchoa, responsável pela Luchoa Revestimentos. Trabalho com padrão de exportação em materiais premium do Brasil, sempre cuidando para entregar exatamente o lote que promete valor de longo prazo para quem distribui aí nos EUA.\n\nAntes de sugerir qualquer material (ou falar de preço/logística), queria entender um pouco do seu perfil:\n— Como é o seu público e as regiões que costuma atender?\n— Tem algum projeto, cor ou tipo de material que costuma sair mais?\n— Trabalha com lotes inteiros, projetos sob medida, ou algo entre esses dois?\n\nA partir do que você me disser, separo alguns lotes que eu mesmo escolheria no seu lugar e já te envio fotos reais, para alinhar expectativas e começar da forma mais transparente possível.\n\nFaz sentido pra você? Me conta um pouco pra eu ajustar 100% ao seu contexto!",
+      "ok": true,
+      "reason": "",
+      "metrics": {
+        "length": 832,
+        "lines": 10,
+        "has_signature": true
+      }
+    },
+    {
+      "scenario": "Follow-up BR – marmorista semanal",
+      "user": "Seguimos naquele projeto? Alguma novidade?",
+      "assistant": "Oi! Bom te ver aqui de novo.\n\nPra eu te responder certinho, me dá só um contexto rapidinho: estamos falando do projeto para qual cliente ou região mesmo? Se quiser, pode me relembrar qual material/tipo de lote estávamos vendo juntos — assim eu já te trago a atualização certinha e, se for o caso, separo algumas fotos reais dos lotes mais alinhados.\n\nFico no aguardo pra te atualizar e a gente já pensar nos próximos passos. Faz sentido pra você?",
+      "ok": true,
+      "reason": "",
+      "metrics": {
+        "length": 446,
+        "lines": 5,
+        "has_signature": true
+      }
+    },
+    {
+      "scenario": "Follow-up US – distributor mensal",
+      "user": "Following up after a month. Any updates on the projects?",
+      "assistant": "Oi, tudo bem? Que bom receber seu contato depois desse tempo! Aproveitando esse follow-up, queria saber como andam os projetos por aí. Alguma novidade nesse último mês, ou seus planos mudaram?\n\nSe tiver algum projeto engatilhado, posso separar alguns lotes mais alinhados ao que você busca — assim já te envio fotos atualizadas e a gente pode organizar juntos os próximos passos. \n\nFaz sentido pra você dar uma olhada em opções novas, ou prefere que eu aguarde mais um pouco? Fico à disposição para ajudar no que precisar!",
+      "ok": true,
+      "reason": "",
+      "metrics": {
+        "length": 522,
+        "lines": 5,
+        "has_signature": false
+      }
+    },
+    {
+      "scenario": "Arquiteto – cliente achou caro",
+      "user": "Meu cliente achou caro o material.",
+      "assistant": "Perfeito, entendi. Só pra alinhar: ele comentou que ficou caro baseado na referência de qual material e padrão de lote? Digo isso porque, no nosso segmento, o valor varia demais entre um lote mediano e um lote realmente superior — tanto em cor, uniformidade, veios e acabamento.\n\nSe você quiser, podemos fazer um comparativo visual: separo fotos reais de dois lotes diferentes — um dentro do padrão premium e outro mais básico — pra gente alinhar se estamos falando da mesma base. Faz sentido pra você? Quer que eu envie essas imagens ainda hoje pra facilitar a decisão dele?\n\nSe preferir, me fala também qual foi o preço que ele tinha em mente e o que ele consideraria válido em relação ao padrão e acabamento. Assim, consigo te apoiar com opções mais certeiras. Fico no aguardo pra fazermos esse ajuste juntos!",
+      "ok": true,
+      "reason": "",
+      "metrics": {
+        "length": 812,
+        "lines": 5,
+        "has_signature": true
+      }
+    },
+    {
+      "scenario": "Arquiteto – quer mais opções",
+      "user": "Meu cliente quer ver mais opções de materiais.",
+      "assistant": "Ótimo, entendi o cenário. Antes de separar mais opções, me conta rapidinho:\n\n— Para qual tipo de projeto ele está buscando?  \n— Tem alguma preferência de cor ou “estilo” (veios mais marcantes, tons mais neutros)?  \n— Qual região/mercado e prazo de entrega?  \n— Algum material que ele já gostou ou que costuma sair melhor aí?\n\nDessa forma, consigo selecionar 2–3 lotes alinhados ao perfil do cliente, sempre mantendo o padrão premium que você já conhece. Assim, ele compara “maçã com maçã”.  \nQuer me passar essas referências? Em seguida, já te envio fotos reais e objetivos de cada lote, pode ser?\n\nFico no aguardo pra te ajudar nessa curadoria.",
+      "ok": true,
+      "reason": "",
+      "metrics": {
+        "length": 645,
+        "lines": 11,
+        "has_signature": false
+      }
+    },
+    {
+      "scenario": "Marmorista BR – preço alto vs concorrente",
+      "user": "Seu preço está alto em relação ao concorrente.",
+      "assistant": "Legal sua sinceridade, obrigado pelo retorno. Antes de entrar no número, me ajuda a entender: você está comparando com qual material ou lote, especificamente? Sabe me dizer o nome da pedra e se chegou a ver fotos ou amostras desse lote do concorrente?\n\nPergunto porque, no nosso segmento, não é só o nome do material — é o padrão do lote que muda tudo, principalmente em desenho, uniformidade, polimento e estrutura física. Muitas vezes parece igual, mas na hora de instalar ou entregar para seu cliente final, a diferença aparece.\n\nSe você quiser, posso te mostrar fotos reais dos lotes que estou oferecendo. Assim fica fácil comparar lado a lado e ver se faz sentido seguir naquela linha de preço, ou se valeria avaliar pelo resultado final que entrega mais valor pro seu cliente.\n\nMe fala se prefere receber as fotos por aqui, ou prefere um horário para conversarmos rapidinho e alinhar esses detalhes?",
+      "ok": true,
+      "reason": "",
+      "metrics": {
+        "length": 905,
+        "lines": 7,
+        "has_signature": false
+      }
+    },
+    {
+      "scenario": "Marmorista BR – fornecedor fixo",
+      "user": "Eu já tenho fornecedor fixo.",
+      "assistant": "Entendi — e faz todo sentido manter estabilidade na cadeia, especialmente quando o fornecedor entrega o que promete. Agora, só pra calibrar: você costuma ficar 100% satisfeito com o padrão dos lotes que recebe? Ou sente, às vezes, diferença de cor, veios, ou polimento entre entregas?\n\nSe fizer sentido, posso separar fotos de 2–3 lotes do mesmo material no nosso padrão exportação, só pra você comparar lado a lado, sem compromisso. Assim, mesmo mantendo seu fornecedor principal, você tem uma referência real caso precise diversificar ou buscar algo diferente.\n\nQuer que eu te envie as fotos agora? Ou prefere alinhar o material específico que faz mais sentido testar?",
+      "ok": true,
+      "reason": "",
+      "metrics": {
+        "length": 670,
+        "lines": 5,
+        "has_signature": true
+      }
+    },
+    {
+      "scenario": "Marmorista BR – não fecha container",
+      "user": "Não consigo fechar container agora.",
+      "assistant": "Entendo totalmente, obrigado por abrir o jogo.\n\nPra gente encontrar o melhor caminho, posso te perguntar rapidinho:  \nSeu foco é garantir já um lote diferenciado (pra reservar agora e mandar quando estiver pronto pra consolidar), prefere ver opções prontas pra embarque menor, ou considera dividir o container em parceria com outro fornecedor seu?\n\nPosso separar e te enviar fotos de 2–3 lotes que realmente valem a pena — assim você já avalia o padrão e, se fizer sentido, a gente alinha o próximo passo sem compromisso.  \nTe envio agora mesmo, pode ser? Ou prefere deixar pra dar uma olhada amanhã cedo?",
+      "ok": true,
+      "reason": "",
+      "metrics": {
+        "length": 605,
+        "lines": 7,
+        "has_signature": false
+      }
+    },
+    {
+      "scenario": "Distribuidor BR – mercado parado",
+      "user": "O mercado está parado por aqui.",
+      "assistant": "Entendo bem esse cenário, e ele é mais comum do que parece – muitos marmoristas e distribuidores estão sentindo uma desaceleração pontual agora. E nessas horas, manter a cabeça fria e focar em oportunidades realmente diferenciadas faz toda a diferença.\n\nSe eu estivesse no seu lugar, aproveitaria pra buscar lotes únicos, que tragam um valor real pro seu portfólio. Às vezes, um bloco premium, com padrão de veios ou cor fora do comum, acaba chamando atenção quando o movimento volta – e quem se adianta, sai na frente. Já vi clientes que, mesmo com o mercado “travado”, conseguiram fechar bons negócios justamente por ter materiais que o concorrente não tinha.\n\nMe conta: você está buscando algo específico pra próximos projetos, ou prefere que eu faça uma curadoria de 2 ou 3 lotes que possam ser diferencial no seu estoque? Posso te mandar fotos reais ainda hoje, se fizer sentido.",
+      "ok": true,
+      "reason": "",
+      "metrics": {
+        "length": 884,
+        "lines": 5,
+        "has_signature": false
+      }
+    },
+    {
+      "scenario": "Distribuidor BR – preço alto",
+      "user": "Seus preços estão altos pro meu mercado.",
+      "assistant": "Entendo totalmente essa percepção, e obrigado pela transparência.\n\nMe ajuda a calibrar melhor: quando você fala que está alto, é em relação a qual tipo de material ou lote que está acostumado a receber aí? Às vezes o preço pode até parecer similar no nome da pedra, mas é o padrão do lote — cor, uniformidade, desenho, acabamento — que muda muito o valor real para o cliente final.\n\nSe você puder me dar uma ideia de que material, padrão ou até mesmo de fornecedor está usando como referência, posso te mostrar dois ou três lotes reais nossos para comparar lado a lado. Pode ser?\n\nQuer que eu te envie algumas fotos e a gente alinha juntos a diferença de padrão e valor, para você decidir com mais clareza?",
+      "ok": true,
+      "reason": "",
+      "metrics": {
+        "length": 706,
+        "lines": 7,
+        "has_signature": false
+      }
+    },
+    {
+      "scenario": "Distribuidor US – preço alto vs local",
+      "user": "Your prices are higher than local distributors.",
+      "assistant": "Entendi, e essa comparação é super válida. Só pra alinhar certinho: normalmente, quando surge essa diferença de preço, ela costuma estar relacionada ao padrão do lote — acabamento, uniformidade, intensidade do desenho, estrutura física da pedra, entre outros detalhes que às vezes não ficam tão claros em tabela ou catálogo.\n\nMe ajuda a entender: você chegou a comparar lado a lado a qualidade do nosso lote com o que os distribuidores locais te oferecem? Posso te enviar fotos reais de 2–3 lotes no padrão exportação, pra você sentir a diferença no detalhe. Se eu estivesse no seu lugar, também iria querer ver isso antes de qualquer decisão.\n\nO que acha de receber essas imagens e a gente alinha juntos os próximos passos? Faz sentido pra você?",
+      "ok": true,
+      "reason": "",
+      "metrics": {
+        "length": 746,
+        "lines": 5,
+        "has_signature": true
+      }
+    },
+    {
+      "scenario": "Distribuidor US – não fecha container",
+      "user": "We can't close a full container now.",
+      "assistant": "Obrigado por abrir esse ponto de imediato.\n\nHoje, muitos clientes realmente estão com projetos num ritmo mais comedido. Isso acontece bastante e é totalmente compreensível.\n\nMe ajuda a entender melhor seu cenário: vocês têm demanda para trabalhar com lotes menores recorrentes, ou seria uma necessidade pontual agora? Prefere programar uma seleção de lotes prontos, lotes em produção para reservar (e ir compondo o container ao longo do tempo), ou cogita dividir espaço com outra carga/parceiro?\n\nPosso separar aqui 2–3 lotes premium que normalmente seleciono para clientes exigentes, enviar fotos reais e alinhar juntos o melhor jeito de viabilizar — seja programando lotes para compor futuramente, seja vendo alternativas para volumes menores.\n\nFaz sentido pra você esse caminho? Posso te enviar já algumas opções e a gente conversa sobre o que mais se encaixa aí?",
+      "ok": true,
+      "reason": "",
+      "metrics": {
+        "length": 866,
+        "lines": 9,
+        "has_signature": false
+      }
+    },
+    {
+      "scenario": "Distribuidor LATAM – todos buscam preço",
+      "user": "En mi mercado, todos buscan precio.",
+      "assistant": "Bom te ouvir por aqui! Vejo que esse cenário é bem típico, principalmente em regiões mais competitivas como LatAm, onde o preço sempre entra primeiro na conversa. Mas olha, posso te dizer com tranquilidade — hoje, entre dois lotes do mesmo material, a diferença de resultado final (e de satisfação do seu cliente) vem do padrão do lote: uniformidade de cor, veios, acabamento e estrutura física.\n\nSe eu estivesse no seu lugar, também ia querer ter certeza de que estou oferecendo algo que realmente se destaque, não só brigando no preço.\n\nMe conta rapidinho: para que tipo de projeto ou público você costuma buscar material? (Residencial, comercial, alto padrão?) Posso te separar e mostrar fotos reais de dois lotes do mesmo material — um mais acessível e um premium, pra você comparar lado a lado. Faz sentido te mostrar isso agora?",
+      "ok": true,
+      "reason": "",
+      "metrics": {
+        "length": 834,
+        "lines": 5,
+        "has_signature": false
+      }
+    },
+    {
+      "scenario": "Distribuidor Europa – prefere via Itália",
+      "user": "Prefiro comprar via Itália, em volume menor.",
+      "assistant": "Perfeito, obrigado por trazer isso com sinceridade.\n\nComprar via Itália é uma estratégia clássica, principalmente quando o foco é agilidade e menor volume. O que tenho visto com alguns clientes europeus nos últimos anos, porém, é uma diferença no padrão do lote quando trazem direto do Brasil — principalmente em materiais premium, com controle mais próximo de polimento, desenho e estrutura.\n\nSe eu pudesse sugerir, que tal avaliar 2 ou 3 lotes prontos, com padrão exportação direto daqui? Posso te enviar fotos reais agora mesmo, sem compromisso, para você comparar lado a lado com o que costuma receber via Itália. Assim fica fácil perceber se faz sentido avançar em algum momento, ou manter como opção para pedidos especiais.\n\nFaz sentido pra você? Quer que eu separe e te envie as imagens dos lotes que valem uma olhada?",
+      "ok": true,
+      "reason": "",
+      "metrics": {
+        "length": 825,
+        "lines": 7,
+        "has_signature": true
+      }
+    },
+    {
+      "scenario": "Distribuidor Oriente Médio – logística complica",
+      "user": "A logística complica pra mim.",
+      "assistant": "Entendo perfeitamente, essa é uma questão comum — e legítima — principalmente em pedidos internacionais ou para volumes grandes.\n\nPosso te perguntar rapidinho: qual região você atende e que tipo de movimento você está prevendo nos próximos meses? Digo isso porque existem 2 ou 3 caminhos diferentes que posso te sugerir, dependendo do perfil da demanda e do seu ritmo de projetos.\n\nMuitas vezes consigo ajustar o formato: desde lotes menores mais prontos, até viabilizar parte do container junto com outro fornecedor (quando realmente faz sentido pra ambos). Mas prefiro pensar junto contigo, pra encontrar o caminho mais eficiente e tranquilo pra sua operação, sempre mantendo o padrão premium do material.\n\nDeixa eu entender melhor seu contexto? Você está com alguma obra específica já desenhada ou seria mais giro de estoque? Se quiser, posso te enviar as opções mais alinhadas para o seu caso e a gente decide juntos o próximo passo.\n\nFaz sentido pra você olharmos juntos essas alternativas?",
+      "ok": true,
+      "reason": "",
+      "metrics": {
+        "length": 995,
+        "lines": 9,
+        "has_signature": false
+      }
+    },
+    {
+      "scenario": "Marmorista US/Europa – prefere distribuidor local",
+      "user": "I prefer to buy from a local distributor.",
+      "assistant": "Perfeito, isso faz todo sentido e é até natural buscar praticidade e agilidade no atendimento local. Sabe que muitas vezes, mesmo atuando como fornecimento direto, acabamos criando parcerias com distribuidores — especialmente quando faz sentido para o fluxo da sua obra ou estoque.\n\nPosso te perguntar: o que geralmente pesa mais pra você na hora de escolher um distribuidor ou manter uma parceria? Busca mais padrão do material, constância no fornecimento, condições comerciais, ou outra questão?\n\nSe quiser, posso te mostrar a diferença concreta de padrão em 2–3 lotes que estamos movimentando via distribuidores, só pra ter um comparativo visual. Quer que eu separe as fotos e te envio agora?",
+      "ok": true,
+      "reason": "",
+      "metrics": {
+        "length": 695,
+        "lines": 5,
+        "has_signature": false
+      }
+    }
+  ]
+}
