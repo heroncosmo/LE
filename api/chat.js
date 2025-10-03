@@ -52,7 +52,7 @@ async function callChatCompletions(apiKey, model, messages) {
   let lastErr;
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     const controller = new AbortController();
-    const to = setTimeout(()=>controller.abort(), 8_000); // 8s timeout para Vercel
+    const to = setTimeout(() => controller.abort(), 8_000); // 8s timeout para Vercel
     try {
       const resp = await fetch(API_URL, {
         method: 'POST',
@@ -70,7 +70,7 @@ async function callChatCompletions(apiKey, model, messages) {
         err.status = resp.status; err.details = txt;
         // Retry on 408/429/5xx
         if ([408, 409, 429, 500, 502, 503, 504].includes(Number(resp.status)) && attempt < maxAttempts) {
-          const backoff = 500 * Math.pow(2, attempt - 1) + Math.floor(Math.random()*300);
+          const backoff = 500 * Math.pow(2, attempt - 1) + Math.floor(Math.random() * 300);
           await sleep(backoff);
           continue;
         }
@@ -83,7 +83,7 @@ async function callChatCompletions(apiKey, model, messages) {
       // Retry on abort/timeouts or network errors
       const msg = String(e?.message || e);
       if ((msg.includes('aborted') || msg.includes('network')) && attempt < maxAttempts) {
-        const backoff = 500 * Math.pow(2, attempt - 1) + Math.floor(Math.random()*300);
+        const backoff = 500 * Math.pow(2, attempt - 1) + Math.floor(Math.random() * 300);
         await sleep(backoff);
         continue;
       }
@@ -91,6 +91,46 @@ async function callChatCompletions(apiKey, model, messages) {
     }
   }
   throw lastErr || new Error('Unknown error calling Chat Completions');
+}
+
+async function callResponses(apiKey, model, messages) {
+  const maxAttempts = 2;
+  let lastErr;
+  // Convert messages to um texto plano para a Responses API
+  const text = messages.map(m => `${m.role.toUpperCase()}: ${m.content}`).join('\n\n');
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const controller = new AbortController();
+    const to = setTimeout(() => controller.abort(), 8_000);
+    try {
+      const resp = await fetch('https://api.openai.com/v1/responses', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ model, input: text, temperature: 0.7, max_output_tokens: 600 }),
+        signal: controller.signal,
+      });
+      clearTimeout(to);
+      if (!resp.ok) {
+        const t = await resp.text();
+        const err = new Error(`OpenAI responses failed: ${resp.status}`);
+        err.status = resp.status; err.details = t;
+        throw err;
+      }
+      return await resp.json();
+    } catch (e) {
+      clearTimeout(to);
+      lastErr = e;
+      const msg = String(e?.message || e);
+      if ((msg.includes('aborted') || msg.includes('network')) && attempt < maxAttempts) {
+        await sleep(400 * attempt);
+        continue;
+      }
+      throw e;
+    }
+  }
+  throw lastErr || new Error('Unknown error calling Responses API');
 }
 
 export default async function handler(req, res) {
@@ -126,14 +166,45 @@ export default async function handler(req, res) {
       { role: 'user', content: message }
     ];
 
-    const data = await callChatCompletions(apiKey, model, messages);
-    const reply = data.choices?.[0]?.message?.content || 'Desculpe, não consegui processar sua mensagem.';
+    const RESPONSES_MODELS = new Set(['gpt-5','o1']);
+    let data; let reply; let modelUsed = model; let path = 'chat-completions';
+
+    try {
+      if (RESPONSES_MODELS.has(model)) {
+        path = 'responses';
+        data = await callResponses(apiKey, model, messages);
+        reply = data.output_text
+          || data.choices?.[0]?.message?.content
+          || (Array.isArray(data.output) ? (data.output.map(o => o?.content?.map?.(c=>c?.text).filter(Boolean).join(' ')).join('\n').trim()) : null);
+
+        // Fallback automático p/ gpt-4o se não conseguir
+        if (!reply) throw new Error('Empty reply from Responses API');
+      } else {
+        data = await callChatCompletions(apiKey, model, messages);
+        reply = data.choices?.[0]?.message?.content;
+      }
+    } catch (e) {
+      // Tenta fallback via gpt-4o em caso de falha com gpt-5/o1
+      if (RESPONSES_MODELS.has(model)) {
+        console.warn('[fallback] Responses API falhou com', model, '— tentando gpt-4o via Chat Completions. Err:', e?.message);
+        modelUsed = 'gpt-4o'; path = 'chat-completions(fallback)';
+        data = await callChatCompletions(apiKey, modelUsed, messages);
+        reply = data.choices?.[0]?.message?.content;
+      } else {
+        throw e;
+      }
+    }
+
+    reply = reply || 'Desculpe, não consegui processar sua mensagem.';
+
+    console.log(`[chat] path=${path} model=${modelUsed}`);
 
     return res.status(200).json({
       success: true,
       message: reply,
-      usage: data.usage,
-      model
+      usage: data?.usage,
+      model: modelUsed,
+      path
     });
 
   } catch (error) {

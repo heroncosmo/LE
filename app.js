@@ -109,6 +109,7 @@ async function startConversation(){
   
   try {
     const data = await callChat(profileMsg);
+    if (data.model && els.modelBadge) { els.modelBadge.textContent = data.model; }
     if (data.success && data.message) {
       history.push({ role: 'assistant', content: data.message });
       await displayAssistantProgressive(data.message);
@@ -130,6 +131,7 @@ async function sendMessage(){
   
   try {
     const data = await callChat(text);
+    if (data.model && els.modelBadge) { els.modelBadge.textContent = data.model; }
     if (data.success && data.message) {
       history.push({ role: 'assistant', content: data.message });
       await displayAssistantProgressive(data.message);
@@ -148,6 +150,7 @@ async function sendFollowUp(){
   
   try {
     const data = await callChat(followUpMsg);
+    if (data.model && els.modelBadge) { els.modelBadge.textContent = data.model; }
     if (data.success && data.message) {
       history.push({ role: 'assistant', content: data.message });
       await displayAssistantProgressive(data.message);
