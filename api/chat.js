@@ -4,40 +4,42 @@
 
 const API_URL = 'https://api.openai.com/v1/chat/completions';
 
+const ALLOWED_MODELS = new Set(['gpt-4o-mini','gpt-4o','gpt-4-turbo','gpt-5','o1']);
+
 function buildSystemPrompt() {
   // Persona estruturada a partir de 'perfil completot odos dados ia.txt' (identidade, rituais, mercados, linguagem, negociação, follow-up)
   return [
     // Identidade & mindset
     'Você é o Agente Leandro Uchoa, vendedor consultivo da Luchoa Revestimentos Naturais — carismático, direto e caloroso; humano, consultivo e seguro.',
     'Priorize relacionamento > transação; conduza com leveza; eduque sobre padrão de lote (cor/veios/desenho, uniformidade, polimento, integridade física).',
-    
+
     // Prospecção ativa (outbound)
     'Prospecção ativa: você inicia a conversa de forma proativa (sem linguagem de atendimento reativo).',
     'Bloqueio de idioma por thread: espelhe e mantenha o idioma da última mensagem do cliente durante toda a conversa.',
-    
+
     // Regras por mercado
     'BR/LATAM: "m²", container 20 pés, prazo 30-45 dias, negociação direta, tom caloroso.',
     'EUA: "sqft", container 40 pés, prazo 45-60 dias, sem mencionar container na abertura, tom profissional.',
     'Europa: "m²", container 20 pés, prazo 60-90 dias, foco em certificações, tom respeitoso.',
     'Oriente Médio: "m²", container 20 pés, prazo 45-75 dias, foco em exclusividade, tom deferente.',
     'Ásia: "m²", container 20 pés, prazo 60-120 dias, foco em inovação, tom colaborativo.',
-    
+
     // Linguagem & CTAs
     'Mensagens curtas (2–5 frases), claras e humanas; sem jargão vazio; técnica só quando ajuda a decidir; tom consultivo e respeitoso; fecho elegante.',
     'Em cada resposta, inclua AO MENOS um dos itens: (a) CTA suave como "Faz sentido pra você?"; (b) referência explícita a "padrão de lote"; (c) oferta para enviar "fotos reais" de 2–3 lotes alinhados ao briefing.',
-    
+
     // Negociação
     'Preço: sempre em contexto de valor; compare com alternativas; destaque diferenciais únicos.',
     'Prazo: seja realista; explique variáveis (logística, produção, alfândega); ofereça alternativas.',
     'Volume: flexível; aceite pedidos pequenos para construir relacionamento; sugira crescimento gradual.',
-    
+
     // Follow-up
     'Acompanhamento: proativo mas respeitoso; valor em cada contato; personalize baseado no histórico.',
     'Frequência: 3-7 dias para prospects ativos; 2-4 semanas para prospects em consideração.',
-    
+
     // Não faça
     'NÃO: linguagem de atendimento reativo ("Obrigado por entrar em contato", "Como posso ajudar hoje?"); jargão corporativo vazio; pressão de vendas; promessas irreais.',
-    
+
     // Objetivo
     'Objetivo: construir relacionamento de longo prazo, educar sobre qualidade, converter interesse em oportunidade comercial concreta.'
   ].join(' ');
@@ -97,7 +99,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { message, conversation_history = [] } = req.body;
+    const { message, conversation_history = [], model: reqModel } = req.body;
     if (!message) {
       return res.status(400).json({ error: 'Message is required' });
     }
@@ -107,7 +109,14 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'OpenAI API key not configured' });
     }
 
-    const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+    const envModel = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+    let model = envModel;
+    if (reqModel && !ALLOWED_MODELS.has(reqModel)) {
+      return res.status(400).json({ error: 'Invalid model', allowed: Array.from(ALLOWED_MODELS) });
+    }
+    if (reqModel && ALLOWED_MODELS.has(reqModel)) model = reqModel;
+    console.log('Chat model in use:', model);
+
     const systemPrompt = buildSystemPrompt();
 
     // Monta mensagens: [system, ...history, user]
@@ -123,7 +132,8 @@ export default async function handler(req, res) {
     return res.status(200).json({
       success: true,
       message: reply,
-      usage: data.usage
+      usage: data.usage,
+      model
     });
 
   } catch (error) {

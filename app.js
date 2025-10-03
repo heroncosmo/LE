@@ -3,16 +3,19 @@ const els = {
   profile: document.querySelector('#profile-screen'),
   persona: document.querySelector('#persona'),
   context: document.querySelector('#context'),
+  model: document.querySelector('#model'),
   start: document.querySelector('#start'),
   chat: document.querySelector('#chat-screen'),
   messages: document.querySelector('#messages'),
   input: document.querySelector('#msgInput'),
   send: document.querySelector('#sendBtn'),
   followUp: document.querySelector('#followUpBtn'),
+  modelBadge: document.querySelector('#modelBadge'),
 };
 
 let threadId = null;
-let history = []; // [{role:'user'|'assistant', content:string}] mantido no cliente e enviado a cada chamada
+let history = [];
+let selectedModel = ''; // [{role:'user'|'assistant', content:string}] mantido no cliente e enviado a cada chamada
 // Contexto padrão por persona para auto-preenchimento
 const DEFAULT_CONTEXTS = {
   'Arquiteto BR': 'Primeiro contato; especifica residenciais de alto padrão; prefere materiais claros e uniformes; prazos curtos.',
@@ -74,6 +77,7 @@ function appendMessage(role, text){
 async function callChat(message){
   const trimmed = history.length > 16 ? history.slice(-16) : history;
   const payload = { message, conversation_history: trimmed };
+  if (selectedModel) payload.model = selectedModel;
   if (threadId) payload.thread_id = threadId;
   const res = await fetch(API_BASE + '/chat', {
     method: 'POST',
@@ -89,8 +93,14 @@ async function callChat(message){
 async function startConversation(){
   const persona = els.persona.value;
   const context = els.context.value;
+  selectedModel = (els.model && els.model.value) ? els.model.value : '';
   const profileMsg = `[Perfil] ${persona} · ${context}`;
-  
+
+  if (els.modelBadge) {
+    els.modelBadge.textContent = selectedModel || 'padrão';
+    els.modelBadge.title = selectedModel ? `Modelo: ${selectedModel}` : 'Modelo padrão (fallback do servidor)';
+  }
+
   els.profile.classList.add('hidden');
   els.chat.classList.remove('hidden');
   

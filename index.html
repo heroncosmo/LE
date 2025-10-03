@@ -8,7 +8,7 @@
 </head>
 <body>
   <div id="app">
-    <header class="app-header">Agente Leandro – Chat</header>
+    <header class="app-header">Agente Leandro – Chat <span id="modelBadge" class="model-badge" title="Modelo em uso"></span></header>
 
     <main>
       <section id="profile-screen" data-testid="profile-screen">
@@ -23,6 +23,16 @@
             <option value="Distribuidor Europa">Distribuidor Europa</option>
             <option value="Distribuidor Oriente Médio">Distribuidor Oriente Médio</option>
             <option value="Marmorista US/Europa">Marmorista US/Europa</option>
+          </select>
+        </label>
+        <label>
+          Modelo de IA
+          <select id="model" data-testid="model-select">
+            <option value="gpt-4o-mini" selected title="Rápido e econômico (recomendado para chat de vendas)">gpt-4o-mini (Rápido e econômico)</option>
+            <option value="gpt-4o" title="Qualidade máxima">gpt-4o (Qualidade máxima)</option>
+            <option value="gpt-4-turbo" title="Turbo otimizado">gpt-4-turbo (Turbo otimizado)</option>
+            <option value="gpt-5" title="Última geração">gpt-5 (Última geração)</option>
+            <option value="o1" title="Raciocínio avançado">o1 (Raciocínio avançado)</option>
           </select>
         </label>
         <label>
