@@ -32,3 +32,9 @@ ia-vendedora-luchoa/.next/
 ia-vendedora-luchoa/.env.local
 # Installers/binaries
 node-installer.msi
+
+
+# Local-only dev server and e2e artifacts
+server_local.js
+reports/**
+test-results/**
