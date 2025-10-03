@@ -6,9 +6,15 @@ const API_URL = 'https://api.openai.com/v1/chat/completions';
 
 const ALLOWED_MODELS = new Set(['gpt-4o-mini','gpt-4o','gpt-4-turbo','gpt-5','o1']);
 
-function buildSystemPrompt() {
+function buildSystemPrompt(persona, context, clientName) {
   // Persona estruturada a partir de 'perfil completot odos dados ia.txt' (identidade, rituais, mercados, linguagem, negociação, follow-up)
   return [
+    // Contexto situacional e dados do prospect
+    `Prospecção ativa: você, Leandro, está INICIANDO o contato. O cliente ainda não falou nada. Comece proativamente e caloroso.`,
+    persona ? `Persona do prospect: ${persona}.` : '',
+    clientName ? `Nome do cliente: ${clientName}. Use este nome naturalmente.` : '',
+    context ? `Contexto adicional: ${context}.` : '',
+
     // Identidade & mindset
     'Você é o Agente Leandro Uchoa, vendedor consultivo da Luchoa Revestimentos Naturais — carismático, direto e caloroso; humano, consultivo e seguro.',
     'Priorize relacionamento > transação; conduza com leveza; eduque sobre padrão de lote (cor/veios/desenho, uniformidade, polimento, integridade física).',
@@ -147,9 +153,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { message, conversation_history = [], model: reqModel } = req.body;
-    if (!message) {
-      return res.status(400).json({ error: 'Message is required' });
+    const { instruction, client_name, persona, context, message, conversation_history = [], model: reqModel } = req.body;
+    if (!message && instruction !== 'start_prospecting') {
+      return res.status(400).json({ error: 'Message or start_prospecting instruction is required' });
     }
 
     const apiKey = process.env.OPENAI_API_KEY;
@@ -165,14 +171,16 @@ export default async function handler(req, res) {
     if (reqModel && ALLOWED_MODELS.has(reqModel)) model = reqModel;
     console.log('Chat model in use:', model);
 
-    const systemPrompt = buildSystemPrompt();
+    const systemPrompt = buildSystemPrompt(persona, context, client_name);
 
-    // Monta mensagens: [system, ...history, user]
-    const messages = [
-      { role: 'system', content: systemPrompt },
-      ...conversation_history,
-      { role: 'user', content: message }
-    ];
+    // Monta mensagens
+    let messages = [ { role: 'system', content: systemPrompt }, ...conversation_history ];
+    if (instruction === 'start_prospecting') {
+      const nome = client_name ? client_name : 'aí';
+      messages.push({ role: 'user', content: `TAREFA: Inicie a conversa agora, de forma proativa e calorosa, dirigindo-se a ${nome}. Uma abertura curta (1–3 frases) com no máximo 1 pergunta leve.` });
+    } else {
+      messages.push({ role: 'user', content: message });
+    }
 
     const RESPONSES_MODELS = new Set(['gpt-5','o1']);
     let data; let reply; let modelUsed = model; let path = 'chat-completions';
