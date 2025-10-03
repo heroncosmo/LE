@@ -70,6 +70,14 @@ function appendMessage(role, text){
   div.className = `message ${role}`;
   div.dataset.testid = role === 'assistant' ? 'assistant-message' : 'user-message';
   div.textContent = text;
+function updateModelBadge(requested, actual, path){
+  if(!els.modelBadge) return;
+  const different = requested && actual && requested !== actual;
+  const text = different ? `${requested} → ${actual}` : (actual || requested || 'padrão');
+  els.modelBadge.textContent = text;
+  els.modelBadge.title = path ? `Endpoint: ${path} | Requested: ${requested || 'n/a'} | Used: ${actual || 'n/a'}` : `Modelo: ${text}`;
+}
+
   els.messages.appendChild(div);
   els.messages.scrollTop = els.messages.scrollHeight;
 }
@@ -103,13 +111,16 @@ async function startConversation(){
 
   els.profile.classList.add('hidden');
   els.chat.classList.remove('hidden');
-  
+
   appendMessage('user', profileMsg);
   history.push({ role: 'user', content: profileMsg });
-  
+
   try {
     const data = await callChat(profileMsg);
-    if (data.model && els.modelBadge) { els.modelBadge.textContent = data.model; }
+    updateModelBadge(selectedModel, data.model, data.path);
+    if (selectedModel && data.model && selectedModel !== data.model) {
+      appendMessage('assistant', `[Aviso] Modelo ${selectedModel} indisponvel agora; usando ${data.model}.`);
+    }
     if (data.success && data.message) {
       history.push({ role: 'assistant', content: data.message });
       await displayAssistantProgressive(data.message);
@@ -124,14 +135,17 @@ async function startConversation(){
 async function sendMessage(){
   const text = els.input.value.trim();
   if (!text) return;
-  
+
   els.input.value = '';
   appendMessage('user', text);
   history.push({ role: 'user', content: text });
-  
+
   try {
     const data = await callChat(text);
-    if (data.model && els.modelBadge) { els.modelBadge.textContent = data.model; }
+    updateModelBadge(selectedModel, data.model, data.path);
+    if (selectedModel && data.model && selectedModel !== data.model) {
+      appendMessage('assistant', `[Aviso] Modelo ${selectedModel} indisponvel agora; usando ${data.model}.`);
+    }
     if (data.success && data.message) {
       history.push({ role: 'assistant', content: data.message });
       await displayAssistantProgressive(data.message);
@@ -147,10 +161,13 @@ async function sendFollowUp(){
   const followUpMsg = '[Follow-up] Solicitar acompanhamento contextual';
   appendMessage('user', followUpMsg);
   history.push({ role: 'user', content: followUpMsg });
-  
+
   try {
     const data = await callChat(followUpMsg);
-    if (data.model && els.modelBadge) { els.modelBadge.textContent = data.model; }
+    updateModelBadge(selectedModel, data.model, data.path);
+    if (selectedModel && data.model && selectedModel !== data.model) {
+      appendMessage('assistant', `[Aviso] Modelo ${selectedModel} indisponvel agora; usando ${data.model}.`);
+    }
     if (data.success && data.message) {
       history.push({ role: 'assistant', content: data.message });
       await displayAssistantProgressive(data.message);
