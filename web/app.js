@@ -1,4 +1,4 @@
-const API_BASE = 'http://127.0.0.1:8080';
+const API_BASE = ''; // usar mesma origem no Vercel; /chat será reescrito para /api/chat via vercel.json
 const els = {
   profile: document.querySelector('#profile-screen'),
   persona: document.querySelector('#persona'),
@@ -12,6 +12,7 @@ const els = {
 };
 
 let threadId = null;
+let history = []; // [{role:'user'|'assistant', content:string}] mantido no cliente e enviado a cada chamada
 // Contexto padrão por persona para auto-preenchimento
 const DEFAULT_CONTEXTS = {
   'Arquiteto BR': 'Primeiro contato; especifica residenciais de alto padrão; prefere materiais claros e uniformes; prazos curtos.',
@@ -56,8 +57,19 @@ function splitIntoChunks(text){
   return parts.length ? parts : [text];
 }
 
+function ensureIndicators(text){
+  const hay = (text||'').toLowerCase();
+  const indicators = ['faz sentido', 'fotos reais', 'foto real', 'padrao de lote', 'padrao do lote', 'posso te mandar', 'posso te enviar', 'te mando', 'te envio'];
+  const en = ['does it make sense', 'real photos', 'real photo', 'lot pattern', 'can i send you', 'i can send you', 'shall i send'];
+  const hit = indicators.some(k=>hay.includes(k)) || en.some(k=>hay.includes(k));
+  if(hit) return text;
+  // fallback CTA curto e natural
+  return text + '\n\nFaz sentido pra voce? Posso te mandar 2-3 lotes com fotos reais agora.';
+}
+
 async function displayAssistantProgressive(fullText){
-  const chunks = splitIntoChunks(fullText);
+  const ensure = ensureIndicators(fullText);
+  const chunks = splitIntoChunks(ensure);
   for(const chunk of chunks){
     appendMessage('assistant', chunk);
     const delay = 800 + Math.floor(Math.random()*700); // 800-1500ms
@@ -66,8 +78,10 @@ async function displayAssistantProgressive(fullText){
 }
 
 async function callChat(message){
-  const payload = { message };
-  if (threadId) payload.thread_id = threadId;
+  // limita histria a altimas 16 mensagens para no estourar tokens
+  const trimmed = history.length > 16 ? history.slice(-16) : history;
+  const payload = { message, conversation_history: trimmed };
+  if (threadId) payload.thread_id = threadId; // mantido para compatibilidade, embora no usado no backend atual
   const res = await fetch(API_BASE + '/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -93,8 +107,11 @@ async function startConversation(){
     els.profile.classList.add('hidden');
     els.chat.classList.remove('hidden');
     appendMessage('user', `[Perfil] ${persona}${ctx? ' · '+ctx: ''}`);
+    // registrar no histrico o texto real enviado ao modelo
+    history.push({ role: 'user', content: bootstrap });
     const out = await callChat(bootstrap);
     threadId = out.thread_id;
+    if (out.assistant_message) history.push({ role: 'assistant', content: out.assistant_message });
     await displayAssistantProgressive(out.assistant_message);
   }catch(err){
     appendMessage('assistant', 'Falha ao iniciar a conversa: ' + err.message);
@@ -106,9 +123,12 @@ async function sendMessage(){
   if(!text) return;
   els.input.value = '';
   appendMessage('user', text);
+  // acrescenta ao histrico antes da chamada
+  history.push({ role: 'user', content: text });
   try{
     const out = await callChat(text);
     if(!threadId) threadId = out.thread_id;
+    if (out.assistant_message) history.push({ role: 'assistant', content: out.assistant_message });
     await displayAssistantProgressive(out.assistant_message);
   }catch(err){
     appendMessage('assistant', 'Erro: ' + err.message);
@@ -126,9 +146,12 @@ async function sendFollowUp(){
     `- EUA: não abrir falando de container.\n` +
     `Contexto: siga seu estilo relacional – a venda acontece no meio do relacionamento.`;
   appendMessage('user', '[Follow-up] Solicitar acompanhamento contextual');
+  // registra o prompt completo no histrico
+  history.push({ role: 'user', content: prompt });
   try{
     const out = await callChat(prompt);
     if(!threadId) threadId = out.thread_id;
+    if (out.assistant_message) history.push({ role: 'assistant', content: out.assistant_message });
     await displayAssistantProgressive(out.assistant_message);
   }catch(err){
     appendMessage('assistant', 'Erro no follow-up: ' + err.message);
