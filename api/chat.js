@@ -50,7 +50,7 @@ async function callChatCompletions(apiKey, model, messages) {
   let lastErr;
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     const controller = new AbortController();
-    const to = setTimeout(()=>controller.abort(), 20_000);
+    const to = setTimeout(()=>controller.abort(), 8_000); // 8s timeout para Vercel
     try {
       const resp = await fetch(API_URL, {
         method: 'POST',
@@ -128,9 +128,13 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('Chat API error:', error);
+    console.error('Error stack:', error.stack);
+    console.error('API Key present:', !!process.env.OPENAI_API_KEY);
+    console.error('API Key length:', process.env.OPENAI_API_KEY?.length || 0);
     return res.status(500).json({
       error: 'Internal server error',
-      details: error.message
+      details: error.message,
+      apiKeyConfigured: !!process.env.OPENAI_API_KEY
     });
   }
 }
