@@ -1,0 +1,136 @@
+// Vercel Serverless Function (Node) usando OpenAI Chat Completions
+// Stateless: usa variáveis OPENAI_API_KEY (e opcional OPENAI_MODEL)
+// Recebe { message, conversation_history: [{role, content}] }, monta [system, ...history, user]
+
+const API_URL = 'https://api.openai.com/v1/chat/completions';
+
+function buildSystemPrompt() {
+  // Persona estruturada a partir de 'perfil completot odos dados ia.txt' (identidade, rituais, mercados, linguagem, negociação, follow-up)
+  return [
+    // Identidade & mindset
+    'Você é o Agente Leandro Uchoa, vendedor consultivo da Luchoa Revestimentos Naturais — carismático, direto e caloroso; humano, consultivo e seguro.',
+    'Priorize relacionamento > transação; conduza com leveza; eduque sobre padrão de lote (cor/veios/desenho, uniformidade, polimento, integridade física).',
+    
+    // Prospecção ativa (outbound)
+    'Prospecção ativa: você inicia a conversa de forma proativa (sem linguagem de atendimento reativo).',
+    'Bloqueio de idioma por thread: espelhe e mantenha o idioma da última mensagem do cliente durante toda a conversa.',
+    
+    // Regras por mercado
+    'BR/LATAM: "m²", container 20 pés, prazo 30-45 dias, negociação direta, tom caloroso.',
+    'EUA: "sqft", container 40 pés, prazo 45-60 dias, sem mencionar container na abertura, tom profissional.',
+    'Europa: "m²", container 20 pés, prazo 60-90 dias, foco em certificações, tom respeitoso.',
+    'Oriente Médio: "m²", container 20 pés, prazo 45-75 dias, foco em exclusividade, tom deferente.',
+    'Ásia: "m²", container 20 pés, prazo 60-120 dias, foco em inovação, tom colaborativo.',
+    
+    // Linguagem & CTAs
+    'Mensagens curtas (2–5 frases), claras e humanas; sem jargão vazio; técnica só quando ajuda a decidir; tom consultivo e respeitoso; fecho elegante.',
+    'Em cada resposta, inclua AO MENOS um dos itens: (a) CTA suave como "Faz sentido pra você?"; (b) referência explícita a "padrão de lote"; (c) oferta para enviar "fotos reais" de 2–3 lotes alinhados ao briefing.',
+    
+    // Negociação
+    'Preço: sempre em contexto de valor; compare com alternativas; destaque diferenciais únicos.',
+    'Prazo: seja realista; explique variáveis (logística, produção, alfândega); ofereça alternativas.',
+    'Volume: flexível; aceite pedidos pequenos para construir relacionamento; sugira crescimento gradual.',
+    
+    // Follow-up
+    'Acompanhamento: proativo mas respeitoso; valor em cada contato; personalize baseado no histórico.',
+    'Frequência: 3-7 dias para prospects ativos; 2-4 semanas para prospects em consideração.',
+    
+    // Não faça
+    'NÃO: linguagem de atendimento reativo ("Obrigado por entrar em contato", "Como posso ajudar hoje?"); jargão corporativo vazio; pressão de vendas; promessas irreais.',
+    
+    // Objetivo
+    'Objetivo: construir relacionamento de longo prazo, educar sobre qualidade, converter interesse em oportunidade comercial concreta.'
+  ].join(' ');
+}
+
+async function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
+
+async function callChatCompletions(apiKey, model, messages) {
+  const maxAttempts = 3;
+  let lastErr;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const controller = new AbortController();
+    const to = setTimeout(()=>controller.abort(), 20_000);
+    try {
+      const resp = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ model, messages, temperature: 0.7, max_tokens: 600 }),
+        signal: controller.signal,
+      });
+      clearTimeout(to);
+      if (!resp.ok) {
+        const txt = await resp.text();
+        const err = new Error(`OpenAI chat completions failed: ${resp.status}`);
+        err.status = resp.status; err.details = txt;
+        // Retry on 408/429/5xx
+        if ([408, 409, 429, 500, 502, 503, 504].includes(Number(resp.status)) && attempt < maxAttempts) {
+          const backoff = 500 * Math.pow(2, attempt - 1) + Math.floor(Math.random()*300);
+          await sleep(backoff);
+          continue;
+        }
+        throw err;
+      }
+      return await resp.json();
+    } catch (e) {
+      clearTimeout(to);
+      lastErr = e;
+      // Retry on abort/timeouts or network errors
+      const msg = String(e?.message || e);
+      if ((msg.includes('aborted') || msg.includes('network')) && attempt < maxAttempts) {
+        const backoff = 500 * Math.pow(2, attempt - 1) + Math.floor(Math.random()*300);
+        await sleep(backoff);
+        continue;
+      }
+      throw e;
+    }
+  }
+  throw lastErr || new Error('Unknown error calling Chat Completions');
+}
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    const { message, conversation_history = [] } = req.body;
+    if (!message) {
+      return res.status(400).json({ error: 'Message is required' });
+    }
+
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: 'OpenAI API key not configured' });
+    }
+
+    const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+    const systemPrompt = buildSystemPrompt();
+
+    // Monta mensagens: [system, ...history, user]
+    const messages = [
+      { role: 'system', content: systemPrompt },
+      ...conversation_history,
+      { role: 'user', content: message }
+    ];
+
+    const data = await callChatCompletions(apiKey, model, messages);
+    const reply = data.choices?.[0]?.message?.content || 'Desculpe, não consegui processar sua mensagem.';
+
+    return res.status(200).json({
+      success: true,
+      message: reply,
+      usage: data.usage
+    });
+
+  } catch (error) {
+    console.error('Chat API error:', error);
+    return res.status(500).json({
+      error: 'Internal server error',
+      details: error.message
+    });
+  }
+}

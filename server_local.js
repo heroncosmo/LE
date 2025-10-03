@@ -1,4 +1,4 @@
-// Minimal local server to run the static web/ and /api/chat using the same Vercel handler
+// Minimal local server to run the static files from root and /api/chat using the same Vercel handler
 // No external deps. Node >= 18 (fetch global).
 
 const http = require('http');
@@ -6,10 +6,10 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = 3000; // matches user's request
-const WEB_DIR = path.join(__dirname, 'web');
+const WEB_DIR = __dirname; // Now serving from root directory
 
 // Load the Vercel-style handler
-const chatHandler = require('./web/api/chat.js');
+const chatHandler = require('./api/chat.js');
 
 function send(res, status, headers, body) {
   res.writeHead(status, headers);
