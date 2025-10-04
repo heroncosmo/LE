@@ -9,7 +9,7 @@ const PORT = 3000; // matches user's request
 const WEB_DIR = __dirname; // Now serving from root directory
 
 // Load the Vercel-style handler
-const chatHandler = require('./api/chat.js');
+const chatHandler = require('./api/chat.js').default || require('./api/chat.js');
 
 function send(res, status, headers, body) {
   res.writeHead(status, headers);
