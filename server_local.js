@@ -8,8 +8,15 @@ const path = require('path');
 const PORT = 3000; // matches user's request
 const WEB_DIR = __dirname; // Now serving from root directory
 
-// Load the Vercel-style handler
-const chatHandler = require('./api/chat.js').default || require('./api/chat.js');
+// Load the Vercel-style handler (with safety logs)
+let chatHandler;
+try {
+  chatHandler = require('./api/chat.js').default || require('./api/chat.js');
+} catch (e) {
+  console.error('[server_local] Failed to load api/chat.js:', e && (e.stack || e.message || e));
+  console.error('[server_local] Node version:', process.version);
+  process.exit(1);
+}
 
 function send(res, status, headers, body) {
   res.writeHead(status, headers);
