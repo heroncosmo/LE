@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Configurações da IA (Leandro)</title>
+  <style>
+    body{ font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; }
+    .row{ margin: 12px 0; }
+    textarea{ width: 100%; height: 420px; font-family: ui-monospace, Menlo, Consolas, monospace; }
+    input[type="text"], select{ width: 100%; padding: 8px; }
+    button{ padding: 8px 12px; margin-right: 8px; }
+    .hint{ color: #666; font-size: 12px; }
+    .ok{ color: #0a0; }
+    .err{ color: #c00; }
+    pre{ background: #f6f6f6; padding: 12px; white-space: pre-wrap; }
+    .grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .card{ border:1px solid #ddd; padding:12px; border-radius:8px; }
+  </style>
+</head>
+<body>
+  <h1>Configurações da IA (Leandro)</h1>
+  <p class="hint">Acesse esta página via /config?key=SEU_SEGREDO. A API valida o parâmetro key em /admin/config e /admin/test.</p>
+
+  <div class="row">
+    <label>Admin key (URL ?key=...)</label>
+    <input id="key" type="text" placeholder="cole aqui a mesma key da URL" />
+  </div>
+
+  <div class="row card">
+    <h3>Overrides manuais do prompt</h3>
+    <label>Prompt consolidado (TODO o system prompt usado pelo modelo):</label>
+    <textarea id="adminInstructions"></textarea>
+    <div class="grid">
+      <div>
+        <label><input id="relationshipFirst" type="checkbox" /> Relacionamento primeiro (3–5 turnos)</label>
+      </div>
+      <div>
+        <label><input id="outboundInitiate" type="checkbox" /> Iniciar contato proativamente</label>
+      </div>
+    </div>
+    <div class="row">
+      <button id="loadBtn">Carregar</button>
+      <button id="saveBtn">Salvar</button>
+    </div>
+    <div id="saveStatus"></div>
+  </div>
+
+  <div class="row card">
+    <h3>Teste rápido (sem precisar abrir a UI principal)</h3>
+    <div class="grid">
+      <div>
+        <label>Persona</label>
+        <select id="persona">
+          <option>Arquiteto BR</option>
+          <option>Marmorista BR</option>
+          <option>Distribuidor US</option>
+          <option>Distribuidor LATAM</option>
+          <option>Distribuidor Europa</option>
+          <option>Distribuidor Oriente Médio</option>
+          <option>Marmorista US/Europa</option>
+        </select>
+      </div>
+      <div>
+        <label>Cliente (nome)</label>
+        <input id="clientName" type="text" placeholder="ex.: Rodrigo" />
+      </div>
+    </div>
+    <div class="row">
+      <label>Contexto</label>
+      <input id="context" type="text" placeholder="ex.: Primeiro contato; prefere materiais claros e uniformes; prazos curtos." />
+    </div>
+    <div class="row">
+      <button id="testBtn">Testar abertura (start_prospecting)</button>
+    </div>
+    <div id="testStatus"></div>
+    <h4>Resposta do modelo</h4>
+    <pre id="reply"></pre>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
+

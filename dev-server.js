@@ -8,6 +8,25 @@ const path = require('path');
 const PORT = process.env.PORT || 8080;
 const ROOT = process.cwd();
 
+
+// Admin config (manual overrides)
+const ADMIN_FILE = path.join(ROOT, 'admin-config.json');
+function loadAdminConfig(){
+  try {
+    const raw = fs.readFileSync(ADMIN_FILE, 'utf-8');
+    const cfg = JSON.parse(raw || '{}');
+    return cfg && typeof cfg === 'object' ? cfg : {};
+  } catch(e){
+    return {};
+  }
+}
+function getAdminKeyFromEnv(){
+  return process.env.ADMIN_KEY || 'changeme';
+}
+function json(res, code, obj){
+  send(res, code, Buffer.from(JSON.stringify(obj)), { 'Content-Type': 'application/json; charset=utf-8' });
+}
+
 function send(res, status, body, headers = {}){
   const h = { 'Content-Type': 'text/plain; charset=utf-8', ...headers };
   res.writeHead(status, h); res.end(body);
@@ -82,24 +101,19 @@ async function callResponses(apiKey, model, messages){
 }
 
 function buildSystemPrompt(persona, context, clientName) {
-  return [
+  const admin = loadAdminConfig();
+  const header = [
     `Prospecção ativa: você, Leandro, está INICIANDO o contato. O cliente ainda não falou nada. Comece proativamente e caloroso.`,
     persona ? `Persona do prospect: ${persona}.` : '',
     clientName ? `Nome do cliente: ${clientName}. Use este nome naturalmente.` : '',
-    context ? `Contexto adicional: ${context}.` : '',
-
-    // Straight Line Persuasion (Jordan Belfort)
-    'Linha Reta: mantenha um caminho claro. A cada mensagem, avance APENAS um passo: (1) rapport → (2) entender contexto → (3) qualificar necessidade → (4) micro-compromisso.',
-    'Primeiros 3–5 turnos do assistente: EXCLUSIVAMENTE relacionamento (conhecer o cliente, entender, criar confiança). Sem oferta, preço, catálogo ou “fotos reais”.',
-    'Rapport + autoridade com carisma: conexão genuína + expertise em frases curtas, sem arrogância; use humor leve e metáforas simples quando couber.',
-    'Uma coisa por vez: no máx. 1 pergunta aberta e 1 CTA leve por mensagem. Evite listas longas e “dump” de informações.',
-    'Escuta ativa: parafraseie em 1 linha algo que o cliente disse antes de avançar; confirme entendimento.',
-
-    // Regras gerais
-    'Mensagens curtas (2–4 frases); sem jargão vazio; técnica só quando ajuda a decidir; tom consultivo e respeitoso; fecho elegante.',
-    'Espelhe o estilo do cliente (formalidade, comprimento, emojis, regionalismos). Se usar “vc/tu”, acompanhe. Se informal, 0–1 emoji leve no fecho.',
-    'Comprimento-alvo: ≤ 90 palavras; no máx. 2 parágrafos.',
+    context ? `Contexto adicional: ${context}.` : ''
   ].filter(Boolean).join(' ');
+
+  const core = (admin && typeof admin.admin_instructions === 'string' && admin.admin_instructions.trim().length)
+    ? admin.admin_instructions.trim()
+    : 'ATENÇÃO: admin_instructions não configurado. Edite em /config para inserir TODAS as instruções (identidade, SLP, Bosworth, Iannarino, humanização, tom WhatsApp, regras por mercado, proibições, etc.).';
+
+  return [header, core].join(' ');
 }
 
 async function handleChat(req, res, body){
@@ -122,6 +136,7 @@ async function handleChat(req, res, body){
   }
 
   const RESPONSES_MODELS = new Set(['gpt-5','o1']);
+
   let data; let reply; let modelUsed = model; let path = 'chat-completions';
   try{
     if (RESPONSES_MODELS.has(model)){
@@ -150,6 +165,63 @@ async function handleChat(req, res, body){
 
 const server = http.createServer(async (req, res) => {
   const urlPath = req.url.split('?')[0];
+  // Admin endpoints
+  if (req.method === 'GET' && urlPath === '/admin/config'){
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const key = url.searchParams.get('key');
+    if (!key || key !== getAdminKeyFromEnv()) return json(res, 401, { error:'unauthorized' });
+    return json(res, 200, { ok:true, config: loadAdminConfig() });
+  }
+  if (req.method === 'POST' && urlPath === '/admin/config'){
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const key = url.searchParams.get('key');
+    if (!key || key !== getAdminKeyFromEnv()) return json(res, 401, { error:'unauthorized' });
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', () => {
+      try{
+        const parsed = body ? JSON.parse(body) : {};
+        const cfg = parsed && parsed.config ? parsed.config : parsed;
+        fs.writeFileSync(ADMIN_FILE, JSON.stringify(cfg, null, 2));
+        return json(res, 200, { ok:true });
+      } catch(e){
+        return json(res, 400, { error:'invalid_json', details: String(e?.message||e) });
+      }
+    });
+    return;
+  }
+  if (req.method === 'POST' && urlPath === '/admin/test'){
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const key = url.searchParams.get('key');
+    if (!key || key !== getAdminKeyFromEnv()) return json(res, 401, { error:'unauthorized' });
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', async () => {
+      try{
+        const p = body ? JSON.parse(body) : {};
+        const { persona, client_name, context } = p || {};
+        const systemPrompt = buildSystemPrompt(persona, context, client_name);
+        const messages = [ { role:'system', content: systemPrompt }, { role:'user', content: `TAREFA: Inicie a conversa agora, de forma proativa e calorosa, dirigindo-se a ${client_name||'aí'}. Abertura curta (1-3 frases) com no máximo 1 pergunta leve.` } ];
+        const apiKey = process.env.OPENAI_API_KEY;
+        const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+        const data = await callChatCompletions(apiKey, model, messages);
+        const reply = data?.choices?.[0]?.message?.content || '';
+        return json(res, 200, { ok:true, reply, model });
+      } catch(e){
+        return json(res, 500, { error:'openai_failed', details: String(e?.message||e) });
+      }
+    });
+    return;
+  }
+  if (req.method === 'GET' && urlPath === '/config'){
+    const fp = path.join(ROOT, 'admin.html');
+    fs.readFile(fp, (err, data) => {
+      if (err) return send(res, 404, 'Admin UI not found');
+      return send(res, 200, data, { 'Content-Type': 'text/html; charset=utf-8' });
+    });
+    return;
+  }
+
   if (req.method === 'POST' && (urlPath === '/chat' || urlPath === '/api/chat')){
     let body = '';
     req.on('data', chunk => { body += chunk; });
