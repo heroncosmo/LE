@@ -1,5 +1,9 @@
 {
   "rewrites": [
-    { "source": "/chat", "destination": "/api/chat" }
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/config", "destination": "/admin.html" },
+    { "source": "/chat", "destination": "/api/chat" },
+    { "source": "/admin/config", "destination": "/api/admin-config" },
+    { "source": "/admin/test", "destination": "/api/admin-test" }
   ]
 }
