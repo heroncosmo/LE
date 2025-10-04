@@ -47,10 +47,12 @@ test.describe('Tom autêntico WhatsApp (Leandro)', () => {
     await waitAssistantIncrement(page);
 
     msgs = await page.$$eval('[data-testid="assistant-message"]', ns => ns.map(n => n.textContent || ''));
-    // Amplia a janela para 5 mensagens do assistente
+    // Validar uso do nome nas 2 primeiras respostas (>= 2 ocorrências combinadas)
+    const firstTwo = (msgs.slice(0,2).join(' ')).toLowerCase();
+    const nameCount2 = (firstTwo.match(/rodrigo/g) || []).length;
+    expect(nameCount2).toBeGreaterThanOrEqual(2);
+    // Janela mais ampla para demais checagens de tom
     const windowText = (msgs.slice(0,5).join(' ')).toLowerCase();
-    const nameCount = (windowText.match(/rodrigo/g) || []).length;
-    expect(nameCount).toBeGreaterThanOrEqual(1);
 
     // Marcadores de oralidade (pelo menos 1)
     expect(markersPT.some(k => windowText.includes(k))).toBeTruthy();
