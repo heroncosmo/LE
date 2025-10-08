@@ -22,6 +22,8 @@ async function fetchConfig(){
   document.getElementById('adminInstructions').value = cfg.admin_instructions || '';
   document.getElementById('relationshipFirst').checked = !!cfg.relationship_first;
   document.getElementById('outboundInitiate').checked = !!cfg.outbound_initiate;
+  // Salva override localmente para que o chat use enquanto não houver KV compartilhado
+  try{ localStorage.setItem('le_admin_instructions', cfg.admin_instructions || ''); }catch(e){}
   document.getElementById('saveStatus').innerHTML = '<span class="ok">Config carregada</span>';
 }
 
@@ -39,6 +41,8 @@ async function saveConfig(){
     document.getElementById('saveStatus').innerHTML = '<span class="err">Falha ao salvar</span>';
     return;
   }
+  // persiste tambm no localStorage para que a UI principal use imediatamente
+  try{ localStorage.setItem('le_admin_instructions', cfg.admin_instructions || ''); }catch(e){}
   document.getElementById('saveStatus').innerHTML = '<span class="ok">Salvo</span>';
 }
 
