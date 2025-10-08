@@ -8,7 +8,12 @@
 </head>
 <body>
   <div id="app">
-    <header class="app-header">Agente Leandro – Chat <span id="modelBadge" class="model-badge" title="Modelo em uso"></span></header>
+    <header class="app-header">Agente Leandro – Chat
+      <span>
+        <span id="simBadge" class="sim-badge hidden" title="Modo simulação ativo">MODO SIMULAÇÃO</span>
+        <span id="modelBadge" class="model-badge" title="Modelo em uso"></span>
+      </span>
+    </header>
 
     <main>
       <section id="profile-screen" data-testid="profile-screen">
@@ -43,15 +48,23 @@
           Contexto adicional
           <textarea id="context" data-testid="context-input" placeholder="Meus gostos/necessidades, região, preferências..."></textarea>
         </label>
-        <button id="start" data-testid="start-btn">Iniciar Conversa</button>
+        <div class="btn-row">
+          <button id="start" data-testid="start-btn">Iniciar Conversa</button>
+          <button id="simulate" data-testid="simulate-btn" title="Iniciar modo de simulação automática">Simular Conversa</button>
+        </div>
       </section>
 
       <section id="chat-screen" class="hidden" data-testid="chat-screen">
         <div id="messages" data-testid="messages"></div>
-        <div class="composer">
+        <div class="composer" id="composer-live">
           <input id="msgInput" data-testid="user-input" placeholder="Digite sua mensagem" />
           <button id="sendBtn" data-testid="send-btn">Enviar</button>
           <button id="followUpBtn" data-testid="followup-btn" title="Gerar follow-up contextual">Follow-up</button>
+        </div>
+        <div class="composer hidden" id="composer-sim">
+          <button id="stopSimBtn" data-testid="stop-sim-btn" class="btn-danger">Parar Simulação</button>
+          <button id="newSimBtn" data-testid="new-sim-btn" class="hidden">Nova Simulação</button>
+          <button id="backBtn" data-testid="back-btn" class="hidden">Voltar ao Perfil</button>
         </div>
       </section>
     </main>

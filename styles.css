@@ -27,6 +27,22 @@ body {
   padding:4px 8px;
   line-height:1;
 }
+.sim-badge{
+  background:#7a2e2e;
+  color:#ffdede;
+  border-radius:999px;
+  font-size:12px;
+  padding:4px 8px;
+  margin-right:8px;
+}
+.btn-danger{
+  background:#b33a3a;
+}
+.btn-row button{ margin-right:8px; }
+.typing{
+  opacity:0.75;
+  font-style:italic;
+}
 
 main {
   display: flex;
