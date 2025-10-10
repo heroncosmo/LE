@@ -76,8 +76,6 @@ async function importConfig(){
   }
 }
 
-}
-
 async function testOpening(){
   const key = getKey();
   const p = {
