@@ -44,6 +44,38 @@ async function saveConfig(){
   // persiste tambm no localStorage para que a UI principal use imediatamente
   try{ localStorage.setItem('le_admin_instructions', cfg.admin_instructions || ''); }catch(e){}
   document.getElementById('saveStatus').innerHTML = '<span class="ok">Salvo</span>';
+
+async function exportConfig(){
+  const cfg = {
+    admin_instructions: document.getElementById('adminInstructions').value,
+    relationship_first: document.getElementById('relationshipFirst').checked,
+    outbound_initiate: document.getElementById('outboundInitiate').checked,
+  };
+  const txt = JSON.stringify(cfg, null, 2);
+  try{
+    await navigator.clipboard.writeText(txt);
+    document.getElementById('saveStatus').innerHTML = '<span class="ok">Exportado para clipboard</span>';
+  }catch(e){
+    document.getElementById('saveStatus').innerHTML = '<span class="err">Falha ao copiar</span>';
+  }
+}
+
+async function importConfig(){
+  const txt = prompt('Cole o JSON de configuração:');
+  if(!txt) return;
+  try{
+    const cfg = JSON.parse(txt);
+    if (cfg && typeof cfg === 'object'){
+      document.getElementById('adminInstructions').value = cfg.admin_instructions || '';
+      document.getElementById('relationshipFirst').checked = !!cfg.relationship_first;
+      document.getElementById('outboundInitiate').checked = !!cfg.outbound_initiate;
+      document.getElementById('saveStatus').innerHTML = '<span class="ok">Importado (não salvo). Clique em Salvar para persistir.</span>';
+    }
+  }catch(e){
+    document.getElementById('saveStatus').innerHTML = '<span class="err">JSON inválido</span>';
+  }
+}
+
 }
 
 async function testOpening(){
@@ -69,6 +101,8 @@ async function testOpening(){
 window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('loadBtn').addEventListener('click', fetchConfig);
   document.getElementById('saveBtn').addEventListener('click', saveConfig);
+  document.getElementById('exportBtn').addEventListener('click', exportConfig);
+  document.getElementById('importBtn').addEventListener('click', importConfig);
   document.getElementById('testBtn').addEventListener('click', testOpening);
   // auto-load if key in URL
   const url = new URL(window.location.href);

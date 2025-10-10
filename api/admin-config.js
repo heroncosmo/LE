@@ -8,6 +8,39 @@ const path = require('path');
 const ROOT_FILE = path.join(process.cwd(), 'admin-config.json');
 const TMP_FILE = path.join('/tmp', 'admin-config.json');
 
+const KV_URL = process.env.UPSTASH_REDIS_REST_URL;
+const KV_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+const ADMIN_CFG_K = 'admin_config_v1';
+
+async function kvGet(key){
+  if (!KV_URL || !KV_TOKEN) return null;
+  try{
+    const r = await fetch(`${KV_URL}/get/${encodeURIComponent(key)}`, {
+      headers: { Authorization: `Bearer ${KV_TOKEN}` }
+    });
+    if (!r.ok) return null;
+    const j = await r.json();
+    if (!j || j.result == null) return null;
+    try{ return JSON.parse(j.result); }catch(_){ return j.result; }
+  }catch(_){ return null; }
+}
+
+async function kvSet(key, value){
+  if (!KV_URL || !KV_TOKEN) return false;
+  try{
+    const val = typeof value === 'string' ? value : JSON.stringify(value);
+    const r = await fetch(`${KV_URL}/set/${encodeURIComponent(key)}`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${KV_TOKEN}` },
+      body: val
+    });
+    if (!r.ok) return false;
+    const j = await r.json();
+    return !!(j && (j.result === 'OK' || j.result === 'ok'));
+  }catch(_){ return false; }
+}
+
+
 function loadConfig() {
   try {
     if (fs.existsSync(TMP_FILE)) {
@@ -57,7 +90,7 @@ async function parseBody(req) {
 
 async function handler(req, res) {
   const method = req.method || 'GET';
-  const adminKey = process.env.ADMIN_KEY || 'changeme';
+  const adminKey = process.env.ADMIN_CONFIG_KEY || process.env.ADMIN_KEY || 'changeme';
   const key = getKeyFromReq(req);
   if (!key || key !== adminKey) {
     res.statusCode = 401;
@@ -66,7 +99,9 @@ async function handler(req, res) {
   }
 
   if (method === 'GET') {
-    const cfg = loadConfig();
+    // 1) Tenta KV; 2) fallback /tmp; 3) fallback arquivo raiz
+    const kvCfg = await kvGet(ADMIN_CFG_K);
+    const cfg = kvCfg != null ? kvCfg : loadConfig();
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     return res.end(JSON.stringify({ ok: true, config: cfg }));
@@ -75,7 +110,13 @@ async function handler(req, res) {
   if (method === 'POST') {
     const body = await parseBody(req);
     const cfg = body && body.config ? body.config : body;
-    const ok = saveConfig(cfg);
+
+    // Persistência preferencial no KV
+    let ok = false;
+    if (KV_URL && KV_TOKEN) ok = await kvSet(ADMIN_CFG_K, cfg);
+    // Grava também em /tmp como fallback imediato no runtime atual
+    if (!ok) ok = saveConfig(cfg);
+
     res.statusCode = ok ? 200 : 500;
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     return res.end(JSON.stringify(ok ? { ok: true } : { error: 'save_failed' }));
