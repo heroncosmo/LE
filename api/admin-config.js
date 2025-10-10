@@ -9,8 +9,8 @@ const ROOT_FILE = path.join(process.cwd(), 'admin-config.json');
 const TMP_FILE = path.join('/tmp', 'admin-config.json');
 
 // Upstash (Vercel KV via REST) - sem dependências
-const KV_URL = process.env.UPSTASH_REDIS_REST_URL;
-const KV_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+const KV_URL = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL || process.env.KV_URL;
+const KV_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN || process.env.KV_REST_API_READ_ONLY_TOKEN;
 const ADMIN_CFG_KEY = process.env.ADMIN_CFG_K || 'admin_config_v1';
 
 async function kvGet(key){
