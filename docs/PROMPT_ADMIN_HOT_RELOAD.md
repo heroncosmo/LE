@@ -2,6 +2,24 @@
 
 Este documento explica como o prompt administrativo consolidado (Agente Leandro) é aplicado nas conversas em produção, como validar o funcionamento E2E e como diagnosticar problemas. Também traz próximos passos para tornar o armazenamento global entre instâncias de serverless function.
 
+> Atualização 2025-10 — Persistência Global via Vercel KV (Upstash)
+>
+> Agora o admin config é lido/gravado no Vercel KV via REST (sem dependência extra). Isso torna as edições persistentes entre dispositivos/sessões e entre instâncias de serverless. O localStorage continua opcional como fallback imediato de UI.
+>
+> Setup necessário (no Vercel Project → Settings → Environment Variables):
+> - UPSTASH_REDIS_REST_URL
+> - UPSTASH_REDIS_REST_TOKEN
+> - ADMIN_CONFIG_KEY (ex.: MINHACHAVESEGURA)
+>
+> Endpoints:
+> - GET /api/admin-config?key=MINHACHAVESEGURA → lê do KV; fallback admin-config.json
+> - POST /api/admin-config?key=MINHACHAVESEGURA → grava no KV; fallback /tmp se KV indisponível
+>
+> UI (/config):
+> - Botões Exportar JSON e Importar JSON disponíveis como backup manual.
+> - Carregar/Salvar usam /api/admin-config (servidor) — não dependem mais do localStorage para persistir.
+
+
 ## Visão geral do fluxo
 
 1. Página administrativa `/config?key=MINHACHAVESEGURA` (admin.html/admin.js)
