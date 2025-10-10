@@ -35,17 +35,16 @@ async function saveConfig(){
   const res = await fetch(`/admin/config?key=${encodeURIComponent(key)}`, {
     method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ config: cfg })
   });
-  if(!res.ok){
+  if (res.status === 501) {
+    document.getElementById('saveStatus').innerHTML = '<span class="err">Somente leitura: edite admin-config.json no repositório e faça push para persistir.</span>';
+    return;
+  }
+  if (!res.ok) {
     document.getElementById('saveStatus').innerHTML = '<span class="err">Falha ao salvar</span>';
     return;
   }
-  if (res.status === 200) {
-    document.getElementById('saveStatus').innerHTML = '<span class="ok">Salvo</span>';
-  } else if (res.status === 501) {
-    document.getElementById('saveStatus').innerHTML = '<span class="err">Somente leitura: edite admin-config.json no repositório e faça push para persistir.</span>';
-  } else {
-    document.getElementById('saveStatus').innerHTML = '<span class="err">Falha ao salvar</span>';
-  }
+  document.getElementById('saveStatus').innerHTML = '<span class="ok">Salvo</span>';
+}
 
 async function exportConfig(){
   const cfg = {
