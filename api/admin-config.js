@@ -8,46 +8,10 @@ const path = require('path');
 const ROOT_FILE = path.join(process.cwd(), 'admin-config.json');
 const TMP_FILE = path.join('/tmp', 'admin-config.json');
 
-const KV_URL = process.env.UPSTASH_REDIS_REST_URL;
-const KV_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
-const ADMIN_CFG_K = 'admin_config_v1';
-
-async function kvGet(key){
-  if (!KV_URL || !KV_TOKEN) return null;
-  try{
-    const r = await fetch(`${KV_URL}/get/${encodeURIComponent(key)}`, {
-      headers: { Authorization: `Bearer ${KV_TOKEN}` }
-    });
-    if (!r.ok) return null;
-    const j = await r.json();
-    if (!j || j.result == null) return null;
-    try{ return JSON.parse(j.result); }catch(_){ return j.result; }
-  }catch(_){ return null; }
-}
-
-async function kvSet(key, value){
-  if (!KV_URL || !KV_TOKEN) return false;
-  try{
-    const val = typeof value === 'string' ? value : JSON.stringify(value);
-    const r = await fetch(`${KV_URL}/set/${encodeURIComponent(key)}`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${KV_TOKEN}` },
-      body: val
-    });
-    if (!r.ok) return false;
-    const j = await r.json();
-    return !!(j && (j.result === 'OK' || j.result === 'ok'));
-  }catch(_){ return false; }
-}
 
 
 function loadConfig() {
-  try {
-    if (fs.existsSync(TMP_FILE)) {
-      const raw = fs.readFileSync(TMP_FILE, 'utf8');
-      return JSON.parse(raw || '{}');
-    }
-  } catch (e) {}
+  // Fonte única da verdade: admin-config.json no repositório
   try {
     const raw = fs.readFileSync(ROOT_FILE, 'utf8');
     return JSON.parse(raw || '{}');
@@ -99,27 +63,20 @@ async function handler(req, res) {
   }
 
   if (method === 'GET') {
-    // 1) Tenta KV; 2) fallback /tmp; 3) fallback arquivo raiz
-    const kvCfg = await kvGet(ADMIN_CFG_K);
-    const cfg = kvCfg != null ? kvCfg : loadConfig();
+    const cfg = loadConfig();
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     return res.end(JSON.stringify({ ok: true, config: cfg }));
   }
 
   if (method === 'POST') {
-    const body = await parseBody(req);
-    const cfg = body && body.config ? body.config : body;
-
-    // Persistência preferencial no KV
-    let ok = false;
-    if (KV_URL && KV_TOKEN) ok = await kvSet(ADMIN_CFG_K, cfg);
-    // Grava também em /tmp como fallback imediato no runtime atual
-    if (!ok) ok = saveConfig(cfg);
-
-    res.statusCode = ok ? 200 : 500;
+    // Modo somente leitura em produção: persistência via repositório
+    res.statusCode = 501;
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
-    return res.end(JSON.stringify(ok ? { ok: true } : { error: 'save_failed' }));
+    return res.end(JSON.stringify({
+      error: 'read_only',
+      message: 'Persistência desabilitada no runtime. Edite admin-config.json no repositório e faça git push para refletir em produção.'
+    }));
   }
 
   res.statusCode = 405;
