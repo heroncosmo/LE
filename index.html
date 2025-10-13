@@ -1,76 +1,81 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Chat – Agente Leandro</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🤖</text></svg>">
-  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <main>
-    <header>
-      <h1>🤖 Agente Leandro</h1>
-      <span id="waBadge" class="badge hidden">WHATSAPP</span>
+  <div id="app">
+    <header class="app-header">Agente Leandro – Chat
+      <span>
+        <span id="simBadge" class="sim-badge hidden" title="Modo simulação ativo">MODO SIMULAÇÃO</span>
+        <span id="waBadge" class="sim-badge hidden" title="Conversa via WhatsApp">WHATSAPP</span>
+        <span id="modelBadge" class="model-badge" title="Modelo em uso"></span>
+      </span>
     </header>
 
-    <section id="profile" class="card">
-      <h3>Perfil de Vendedor</h3>
-      <label>Persona</label>
-      <textarea id="persona" placeholder="Ex.: Leandro Uchoa, consultor..."></textarea>
-
-      <div class="row">
-        <div>
-          <label>Contexto de Venda</label>
-          <textarea id="context" placeholder="Ex.: Revestimentos naturais, mármore, granito..."></textarea>
+    <main>
+      <section id="profile-screen" data-testid="profile-screen">
+        <h2>Seu Perfil</h2>
+        <label>
+          Quem sou eu?
+          <select id="persona" data-testid="persona-select">
+            <option value="Arquiteto BR">Arquiteto BR</option>
+            <option value="Marmorista BR">Marmorista BR</option>
+            <option value="Distribuidor US">Distribuidor US</option>
+            <option value="Distribuidor LATAM">Distribuidor LATAM</option>
+            <option value="Distribuidor Europa">Distribuidor Europa</option>
+            <option value="Distribuidor Oriente Médio">Distribuidor Oriente Médio</option>
+            <option value="Marmorista US/Europa">Marmorista US/Europa</option>
+          </select>
+        </label>
+        <label>
+          Nome do cliente
+          <input id="clientName" data-testid="client-name-input" placeholder="Ex.: Rodrigo" value="Rodrigo" />
+        </label>
+        <label>
+          Número do WhatsApp (E.164)
+          <input id="phone" data-testid="phone-input" placeholder="Ex.: +5511999998888" value="+5517991956944" />
+        </label>
+        <label>
+          Modelo de IA
+          <select id="model" data-testid="model-select">
+            <option value="gpt-4o-mini" selected title="Rápido e econômico (recomendado para chat de vendas)">gpt-4o-mini (Rápido e econômico)</option>
+            <option value="gpt-4o" title="Qualidade máxima">gpt-4o (Qualidade máxima)</option>
+            <option value="gpt-4-turbo" title="Turbo otimizado">gpt-4-turbo (Turbo otimizado)</option>
+            <option value="gpt-5" title="Última geração">gpt-5 (Última geração)</option>
+            <option value="o1" title="Raciocínio avançado">o1 (Raciocínio avançado)</option>
+          </select>
+        </label>
+        <label>
+          Contexto adicional
+          <textarea id="context" data-testid="context-input" placeholder="Meus gostos/necessidades, região, preferências..."></textarea>
+        </label>
+        <div class="btn-row">
+          <button id="start" data-testid="start-btn">Iniciar Conversa</button>
+          <button id="startWhatsApp" data-testid="start-whatsapp-btn" title="Iniciar prospecção pelo WhatsApp">Prospecção WhatsApp</button>
+          <button id="simulate" data-testid="simulate-btn" title="Iniciar modo de simulação automática">Simular Conversa</button>
         </div>
-        <div>
-          <label>Nome do Cliente</label>
-          <input id="clientName" placeholder="Ex.: João Silva" />
+      </section>
+
+      <section id="chat-screen" class="hidden" data-testid="chat-screen">
+        <div id="messages" data-testid="messages"></div>
+        <div class="composer" id="composer-live">
+          <input id="msgInput" data-testid="user-input" placeholder="Digite sua mensagem" />
+          <button id="sendBtn" data-testid="send-btn">Enviar</button>
+          <button id="followUpBtn" data-testid="followup-btn" title="Gerar follow-up contextual">Follow-up</button>
         </div>
-      </div>
-
-      <div class="row">
-        <div>
-          <label>Número do WhatsApp (E.164)</label>
-          <input id="phone" data-testid="phone-input" placeholder="Ex.: +5511999998888" />
+        <div class="composer hidden" id="composer-sim">
+          <button id="stopSimBtn" data-testid="stop-sim-btn" class="btn-danger">Parar Simulação</button>
+          <button id="newSimBtn" data-testid="new-sim-btn" class="hidden">Nova Simulação</button>
+          <button id="backBtn" data-testid="back-btn" class="hidden">Voltar ao Perfil</button>
         </div>
-        <div>
-          <label>Modelo (opcional)</label>
-          <input id="model" placeholder="Ex.: gpt-4o-mini" />
-        </div>
-      </div>
+      </section>
+    </main>
+  </div>
 
-      <div class="actions">
-        <button id="start" class="secondary">Iniciar Conversa</button>
-        <button id="startWhatsApp" data-testid="start-whatsapp-btn" title="Iniciar prospecção pelo WhatsApp" class="success">Prospecção WhatsApp</button>
-        <button id="simulate">Simular Conversa</button>
-      </div>
-
-      <p class="small">Dica: Telefone precisa estar no formato +5511999998888 (sem espaços).</p>
-    </section>
-
-    <section id="chat" class="card hidden">
-      <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-        <button id="back" class="secondary">◀ Voltar</button>
-        <h3 style="margin:0;">Agente Leandro</h3>
-        <span class="badge hidden" id="waBadge2">WHATSAPP</span>
-      </div>
-      <div id="messages" class="chat"></div>
-      <div style="display:flex; gap:8px; margin-top:8px;">
-        <input id="input" placeholder="Digite sua mensagem..." />
-        <button id="send">Enviar</button>
-      </div>
-    </section>
-
-    <section class="card">
-      <details>
-        <summary>Ajuda / Diagnóstico</summary>
-        <pre id="log" class="small"></pre>
-      </details>
-    </section>
-  </main>
-
-  <script src="/app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
