@@ -1,4 +1,4 @@
-/* Frontend logic for Agente Leandro */
+/* Frontend logic for Agente Leandro (compat layer) */
 
 const els = {
   persona: document.querySelector('#persona'),
@@ -9,12 +9,12 @@ const els = {
   start: document.querySelector('#start'),
   startWhatsApp: document.querySelector('#startWhatsApp'),
   simulate: document.querySelector('#simulate'),
-  chat: document.querySelector('#chat'),
-  profile: document.querySelector('#profile'),
+  chat: document.querySelector('#chat-screen') || document.querySelector('#chat'),
+  profile: document.querySelector('#profile-screen') || document.querySelector('#profile'),
   messages: document.querySelector('#messages'),
-  input: document.querySelector('#input'),
-  send: document.querySelector('#send'),
-  back: document.querySelector('#back'),
+  input: document.querySelector('#msgInput') || document.querySelector('#input'),
+  send: document.querySelector('#sendBtn') || document.querySelector('#send'),
+  back: document.querySelector('#backBtn') || document.querySelector('#back'),
   waBadge: document.querySelector('#waBadge'),
   waBadge2: document.querySelector('#waBadge2'),
   log: document.querySelector('#log'),
@@ -33,10 +33,10 @@ let waPhone = '';
 let waPollTimer = null;
 let waLastSince = 0;
 
-function showChat(){ els.profile.classList.add('hidden'); els.chat.classList.remove('hidden'); }
-function showProfile(){ els.chat.classList.add('hidden'); els.profile.classList.remove('hidden'); }
-function renderWhatsAppBadge(v){ const fn = v? 'remove':'add'; els.waBadge.classList[fn]('hidden'); els.waBadge2.classList[fn]('hidden'); }
-function pushMessage(role, text){ const div = document.createElement('div'); div.className = 'msg ' + (role==='user'? 'user' : 'assistant'); div.textContent = text; els.messages.appendChild(div); els.messages.scrollTop = els.messages.scrollHeight; }
+function showChat(){ if(els.profile) els.profile.classList.add('hidden'); if(els.chat) els.chat.classList.remove('hidden'); }
+function showProfile(){ if(els.chat) els.chat.classList.add('hidden'); if(els.profile) els.profile.classList.remove('hidden'); }
+function renderWhatsAppBadge(v){ const fn = v? 'remove':'add'; if (els.waBadge) els.waBadge.classList[fn]('hidden'); if (els.waBadge2) els.waBadge2.classList[fn]('hidden'); }
+function pushMessage(role, text){ const div = document.createElement('div'); div.className = 'msg ' + (role==='user'? 'user' : 'assistant'); div.textContent = text; if(els.messages){ els.messages.appendChild(div); els.messages.scrollTop = els.messages.scrollHeight; } }
 
 async function callAPI(path, options){
   const o = Object.assign({ headers:{ 'Content-Type':'application/json' } }, options || {});
@@ -47,8 +47,8 @@ async function callAPI(path, options){
 
 // Core: start conversation (local web)
 async function startConversation(){
-  cachedPersona = els.persona.value;
-  cachedContext = els.context.value;
+  cachedPersona = els.persona?.value || '';
+  cachedContext = els.context?.value || '';
   cachedClientName = els.clientName ? els.clientName.value : '';
   selectedModel = (els.model && els.model.value) ? els.model.value : '';
 
@@ -60,7 +60,7 @@ async function startConversation(){
 }
 
 async function sendMessage(){
-  const text = (els.input.value || '').trim();
+  const text = ((els.input && els.input.value) || '').trim();
   if (!text) return;
   els.input.value = '';
   pushMessage('user', text);
@@ -74,12 +74,12 @@ async function sendMessage(){
 
 // WhatsApp flow
 async function startWhatsAppConversation(){
-  cachedPersona = els.persona.value;
-  cachedContext = els.context.value;
+  cachedPersona = els.persona?.value || '';
+  cachedContext = els.context?.value || '';
   cachedClientName = els.clientName ? els.clientName.value : '';
   selectedModel = (els.model && els.model.value) ? els.model.value : '';
   waPhone = (els.phone && els.phone.value ? els.phone.value.trim() : '');
-  if (!waPhone) { alert('Informe o número de WhatsApp no formato E.164 (ex.: +5511999998888).'); return; }
+  if (!waPhone) { alert('Informe o n\u00famero de WhatsApp no formato E.164 (ex.: +5511999998888).'); return; }
 
   showChat();
   isWhatsAppMode = true;
@@ -119,11 +119,11 @@ if (els.startWhatsApp) els.startWhatsApp.addEventListener('click', startWhatsApp
 
 // demo
 if (els.simulate) els.simulate.addEventListener('click', ()=>{
-  els.persona.value = 'Leandro Uchoa, consultor de vendas da Luchoa Revestimentos Naturais.';
-  els.context.value = 'Venda de revestimentos naturais (mármore, granito, quartzito) para projetos residenciais e comerciais.';
-  els.clientName.value = 'João Silva';
-  els.phone.value = '+5511999998888';
-  els.model.value = 'gpt-4o-mini';
+  if (els.persona) els.persona.value = 'Leandro Uchoa, consultor de vendas da Luchoa Revestimentos Naturais.';
+  if (els.context) els.context.value = 'Venda de revestimentos naturais (m\u00e1rmore, granito, quartzito) para projetos residenciais e comerciais.';
+  if (els.clientName) els.clientName.value = 'Jo\u00e3o Silva';
+  if (els.phone) els.phone.value = '+5511999998888';
+  if (els.model) els.model.value = 'gpt-4o-mini';
 });
 
 // Fallback prefill for phone if HTML didn\'t ship value
