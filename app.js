@@ -79,7 +79,7 @@ async function startWhatsAppConversation(){
   cachedClientName = els.clientName ? els.clientName.value : '';
   selectedModel = (els.model && els.model.value) ? els.model.value : '';
   waPhone = (els.phone && els.phone.value ? els.phone.value.trim() : '');
-  if (!waPhone) { alert('Informe o n\u00famero de WhatsApp no formato E.164 (ex.: +5511999998888).'); return; }
+  if (!waPhone) { alert('Informe o número de WhatsApp no formato E.164 (ex.: +5511999998888).'); return; }
 
   showChat();
   isWhatsAppMode = true;
@@ -110,17 +110,21 @@ async function pollWhatsAppInbox(){
   }
 }
 
-els.start.addEventListener('click', startConversation);
-els.send.addEventListener('click', sendMessage);
-els.input.addEventListener('keydown', (e)=>{ if (e.key==='Enter') sendMessage(); });
-els.back.addEventListener('click', ()=>{ showProfile(); isWhatsAppMode=false; renderWhatsAppBadge(false); if (waPollTimer) { clearInterval(waPollTimer); waPollTimer=null; } });
-els.startWhatsApp.addEventListener('click', startWhatsAppConversation);
+// Defensive event listeners + phone fallback
+if (els.start) els.start.addEventListener('click', startConversation);
+if (els.send) els.send.addEventListener('click', sendMessage);
+if (els.input) els.input.addEventListener('keydown', (e)=>{ if (e.key==='Enter') sendMessage(); });
+if (els.back) els.back.addEventListener('click', ()=>{ showProfile(); isWhatsAppMode=false; renderWhatsAppBadge(false); if (waPollTimer) { clearInterval(waPollTimer); waPollTimer=null; } });
+if (els.startWhatsApp) els.startWhatsApp.addEventListener('click', startWhatsAppConversation);
 
 // demo
-els.simulate.addEventListener('click', ()=>{
+if (els.simulate) els.simulate.addEventListener('click', ()=>{
   els.persona.value = 'Leandro Uchoa, consultor de vendas da Luchoa Revestimentos Naturais.';
-  els.context.value = 'Venda de revestimentos naturais (m\u00e1rmore, granito, quartzito) para projetos residenciais e comerciais.';
-  els.clientName.value = 'Jo\u00e3o Silva';
+  els.context.value = 'Venda de revestimentos naturais (mármore, granito, quartzito) para projetos residenciais e comerciais.';
+  els.clientName.value = 'João Silva';
   els.phone.value = '+5511999998888';
   els.model.value = 'gpt-4o-mini';
 });
+
+// Fallback prefill for phone if HTML didn\'t ship value
+if (els.phone && !els.phone.value) els.phone.value = '+5517991956944';
