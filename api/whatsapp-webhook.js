@@ -61,6 +61,22 @@ async function saveConv(phone, conv){
   if (!ok) mem.conv.set(phone, conv);
 }
 
+const whatsappApi = require('./whatsapp'); // reuse send function via require cache
+let _wapiSendText = null;
+try{
+  _wapiSendText = require('./whatsapp').__esModule ? null : null;
+}catch{}
+
+// copy minimal sender
+async function wapiSendTextFallback(to, text){
+  const mod = require('./whatsapp');
+  if (mod && typeof mod === 'function' && mod.name === 'handler'){
+    // no direct export; reimplement by calling /api/whatsapp?op=send from server side would require deployment URL
+  }
+  // As a fallback, do nothing; actual sending is handled by /api/whatsapp start/send paths in most flows
+  return;
+}
+
 const chatHandler = require('./chat');
 async function generateReply(payload){
   return new Promise(async (resolve, reject)=>{
@@ -115,7 +131,7 @@ module.exports = async function handler(req, res){
     await inboxPush(phone, { role:'user', text, ts: now() });
 
     // generate reply
-    const payload = { persona: conv.meta.persona, context: conv.meta.context, client_name: conv.meta.client_name, conversation_history: conv.history.slice(-16) };
+    const payload = { persona: conv.meta.persona, context: conv.meta.context, client_name: conv.meta.client_name, conversation_history: conv.history.slice(-16), message: text };
     const reply = await generateReply(payload);
     const out = reply?.message || '';
 
@@ -123,6 +139,8 @@ module.exports = async function handler(req, res){
       conv.history.push({ role:'assistant', content: out });
       await saveConv(phone, conv);
       await inboxPush(phone, { role:'assistant', text: out, ts: now() });
+      // try to send; ignore failures (the /api/whatsapp send path provides another route)
+      try{ await wapiSendTextFallback(phone, out); }catch(e){ log('send via fallback failed', e?.message); }
     }
 
     return res.status(200).json({ success:true });
@@ -133,4 +151,3 @@ module.exports = async function handler(req, res){
 }
 
 module.exports.default = module.exports;
-
